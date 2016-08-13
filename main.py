@@ -32,11 +32,16 @@ def save2file(data, file2write, titles):
         file2write.write(string + '\n')    
 
 for file2read in fileList(sys.argv[1]):
-    U, I = getData(file2read)
-    with open(sys.argv[2] + str(file2read[-11:-9]) +'_MS.txt', 'w') as file2write:
-        save2file([U, I],                file2write, 'U, V\tI, A')
+    No = file2read.replace('Om', '')[-9:-7]
+    try:
+        U, I = getData(file2read)
+        with open(sys.argv[2] + str(No) +'_MS.txt', 'w') as file2write:
+            save2file([U, I],                file2write, 'U, V\tI, A')
     
-    fluxProcessing = relFlux.relFlux(U, I)
-    fluxes = fluxProcessing.peaks
-    with open(sys.argv[2] + str(file2read[-11:-9]) +'_Magic.txt', 'w') as file2write:
-        save2file(fluxes, file2write, 'U, V\tInt\tRelInt')
+        fluxProcessing = relFlux.relFlux(U, I)
+        fluxes = fluxProcessing.peaks
+        with open(sys.argv[2] + str(No) +'_Magic.txt', 'w') as file2write:
+            save2file(fluxes, file2write, 'U, V\tInt\tRelInt')
+    except:
+        print file2read
+        pass
