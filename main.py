@@ -15,7 +15,7 @@ for file2read in fileList(sys.argv[1]):
         fluxes = fluxProcessing.peaks
         if (len(fluxes[0]) == 3):
             string  = str(No(file2read)) + '\t'
-            for i in fluxes[-1]:
+            for i in norm([f*m**0.5 for f, m in zip(fluxes[-1], [3, 2, 1])]):
                 string += str(i) + '\t'
             MSProcessing = getInf.fromMS()
             B, Upl = MSProcessing.BUpl(fluxes[0], str(No))
