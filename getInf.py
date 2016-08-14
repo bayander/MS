@@ -1,26 +1,27 @@
 import scipy.signal as ss
 import numpy as np
+from sepFunc import norm
 
-def norm(data, mode = 'int'):
-    if   (mode == 'int'):
-        denominator = sum(data)
-    elif (mode == 'amp'):
-        denominator = max(data)
-    return [value/denominator for value in data]
+class fromMS():
+    def __init__(self, R = 3.5e-2):
+        self.R = R
 
-def getData(path):
-    U = []
-    I = []
-    with open(path, 'r') as file:
-        for line in file:
-            U.append(float(line.split('\t')[0].replace(',', '.')))
-            _I = -float(line.split('\t')[1].replace(',', '.'))
-            if (_I >= 0):
-                I.append(_I)
-            else:
-                I.append(0)
-    return U, ss.savgol_filter(norm(I, 'amp'), 15, 2)
- 
+    def _BUpl(self, MZ1, U1, MZ2, U2):
+        K = MZ1*MZ2*((U2 - U1)/(MZ1 - MZ2))
+        B = (K/4.8e7)**0.5/self.R
+        Upl = (MZ2*U2 - MZ1*U1)/(MZ1 - MZ2)
+        return B, -Upl
+     
+    def BUpl(self, U, tag):
+        if (len(U) == 3):
+            B_Upl = []
+            B_Upl.append(self._BUpl(3.0, U[0], 2.0, U[1]))
+            B_Upl.append(self._BUpl(3.0, U[0], 1.0, U[2]))
+            B_Upl.append(self._BUpl(2.0, U[1], 1.0, U[2]))
+            B   = np.mean([_B_Upl[0] for _B_Upl in B_Upl])
+            Upl = np.mean([_B_Upl[1] for _B_Upl in B_Upl])
+        return B, Upl    
+
 class relFlux():
     def __init__(self, U, I):
         self.peaks  = self.getPeaks(U, I)
